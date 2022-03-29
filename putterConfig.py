@@ -1,7 +1,7 @@
 from pathlib import Path
 import json
 from webbrowser import get
-defaultConfig = '{"sourceFolder": "", "filter": "", "destinationFolder": "", "serverMediaFolder" : "/Applications/Mbox/Media/"}'
+defaultConfig = '{"sourceFolder": "", "filter": "", "destinationFolder": "", "destinationPath" : "/Applications/Mbox/Media/", "ipSchema" : "192.168.11."}'
 defaults = json.loads(defaultConfig)
 
 currentConfig = defaults
@@ -10,11 +10,14 @@ def updateCurrentConfig(newConfig):
     global currentConfig
     currentConfig =newConfig
 
-def getPath():
+def getPutterFolderPath():
     configPath = Path(str(Path.home())+"/.mediaPutter")
     configPath.mkdir(parents=True, exist_ok=True)
-    #print(configPath)
+    return configPath
+    
+def getPath():
 
+    configPath = getPutterFolderPath()
     filePath = Path(str(configPath)+'/mediaPutter.json')
     if not filePath.is_file():   
         print('No Local File Found, Making One!')
@@ -50,8 +53,7 @@ def UpdateConfig(lineItem, value):
     file.close()
     updateCurrentConfig(updated)
 
-
-
-
-
-
+def getConfig(item):
+    global currentConfig
+    if(item == 'filter'):
+        return currentConfig['filter']

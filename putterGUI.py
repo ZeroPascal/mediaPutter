@@ -21,13 +21,13 @@ class MainView(tk.Frame):
             print(page)
             if page =='Main':
                 p1.show()
-            elif page =='Transfer':
-                p3.show()
+                return p1
+      
 
         p1 = MainPage(self)
         p2 = ConfigPage(self)
-        p3 = TransferPage(self)
-
+       # p3 = TransferPage(self)
+    
         buttonframe = tk.Frame(self)
         container = tk.Frame(self)
         buttonframe.pack(side="top", fill="x", expand=False)
@@ -35,20 +35,13 @@ class MainView(tk.Frame):
 
         p1.place(in_=container, x=0, y=0, relwidth=1, relheight=1)
         p2.place(in_=container, x=0, y=0, relwidth=1, relheight=1)
-        p3.place(in_=container, x=0, y=0, relwidth=1, relheight=1)
+      #  p3.place(in_=container, x=0, y=0, relwidth=1, relheight=1)
 
         b1 = tk.Button(buttonframe, text="Page 1", command=p1.show)
         b2 = tk.Button(buttonframe, text="Preferences", command=p2.show)
-        b3 = tk.Button(buttonframe, text="Start Transfer", command=p3.show)
+       # b3 = tk.Button(buttonframe, text="Start Transfer", command=p3.show)
 
-        b1.pack(side="left")
-        b2.pack(side="left")
-        b3.pack(side="left")
-
-               
-
-
-        p2.show()
+        p1.show()
 
 if __name__ == "__main__":
     root = tix.Tk()
