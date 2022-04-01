@@ -1,4 +1,3 @@
-
 from tkinter import *
 from tkinter import tix
 from tkinter import filedialog
@@ -12,22 +11,17 @@ import re
 
 from putterTransferPage import TransferPage
 
-class Page(tix.Frame):
-    def __init__(self, *args, **kwargs):
-        tix.Frame.__init__(self, *args, **kwargs)
-    def show(self):
-        self.lift()
-
-class MainPage(Page):
-    def __init__(self, *args, **kwargs):
-        Page.__init__(self, *args, **kwargs)
-       
-        self.sourceFolder = ''
+class MainPage(Frame):
+    def __init__(self, parent, controller):
+        Frame.__init__(self, parent)
+        self.name= 'MainPage'
+        self.controller = controller
+        #self.config['sourceFolder'] = ''
         self.mediaFiles = []
         self.selectedMediaFiles = []
         self.serverList = {}
-        self.initalConfig = putterConfig.ReadConfig()
-        self.sourceFolder= self.initalConfig['sourceFolder']
+        self.config = putterConfig.ReadConfig()
+        #self.config['sourceFolder']= self.initalConfig['sourceFolder']
         mediaList = Listbox(self, width=55, selectmode=EXTENDED, name='mediaList')
         filterString =StringVar()
         filterString.set(putterConfig.getConfig('filter'))
@@ -35,33 +29,36 @@ class MainPage(Page):
         configError=Label(self,text="")
 
 
+       
+
+
         
 
         def updateMediaFolder():
-            if not self.sourceFolder:
+            if not self.config['sourceFolder']:
                 return 
         
             mediaList.delete(0,mediaList.size())
             try:
-                self.mediaFiles = [f for f in listdir(self.sourceFolder) if isfile(join(self.sourceFolder, f))]
+                self.mediaFiles = [f for f in listdir(self.config['sourceFolder']) if isfile(join(self.config['sourceFolder'], f))]
                 i=0
                     
                 for file in self.mediaFiles:
                     i+=1
                     mediaList.insert(i,file)
             except:
-                print('MediaFolder Update Failed: ',self.sourceFolder)
+                print('MediaFolder Update Failed: ',self.config['sourceFolder'])
                 
             mediaList.update()
             updateFilter(filterString)
-            putterConfig.UpdateConfig('sourceFolder',self.sourceFolder)
+            putterConfig.UpdateConfig('sourceFolder',self.config['sourceFolder'])
 
         def selectMediaFolder():
             try:
-                self.sourceFolder = filedialog.askdirectory()
+                self.config['sourceFolder'] = filedialog.askdirectory()
             except:
-                self.sourceFolder = ''
-            if self.sourceFolder:
+                self.config['sourceFolder'] = ''
+            if self.config['sourceFolder']:
                 updateMediaFolder()
 
                
@@ -100,10 +97,9 @@ class MainPage(Page):
                         return
            
            # transferPage.start(hideTransfer,cancelTransfer)
-            transferPage = TransferPage(self,cancelTransfer,hideTransfer)
-            row1 = 500
-            self.update()
-            p = threading.Thread(target=putterTransfer.Putt, args=(self.serverList, transferPage.logFeedback))
+            #transferPage = TransferPage(self,cancelTransfer,hideTransfer)
+            self.controller.startTransfer(self.serverList,self.config)
+            #p = threading.Thread(target=putterTransfer.Putt, args=(self.serverList, transferPage.logFeedback))
            # p.start()
             
         def updateFilter(filter):
@@ -168,7 +164,7 @@ class MainPage(Page):
         Label(self,text="Destination Folder:").place(x=10, y=row5)
 
         destinationFolder =StringVar()
-        destinationFolder.set(self.initalConfig['destinationFolder'])
+        destinationFolder.set(self.config['destinationFolder'])
         destinationFolder.trace("w", lambda name, index, mode, destinationFolder=destinationFolder: putterConfig.UpdateConfig('destinationFolder',destinationFolder.get()))
         destinationFolderEntry = Entry(self, width=40, textvariable=destinationFolder)
         destinationFolderEntry.place(x=120,y=row5)
@@ -176,7 +172,7 @@ class MainPage(Page):
         row6 = row5+25
         Label(self,text="Destination Path:").place(x=10, y=row6)
         destinationPath =StringVar()
-        destinationPath.set(self.initalConfig['destinationPath'])
+        destinationPath.set(self.config['destinationPath'])
         destinationPath.trace("w", lambda name, index, mode, destinationPath=destinationPath: putterConfig.UpdateConfig('destinationPath',destinationPath.get()))
         destinationPathEntry = Entry(self, width=40, textvariable=destinationPath)
         destinationPathEntry.place(x=120,y=row6)
@@ -184,7 +180,7 @@ class MainPage(Page):
         row7 = row6+25
         Label(self,text="IP Schema:").place(x=10, y=row7)
         ipSchema =StringVar()
-        ipSchema.set(self.initalConfig['ipSchema'])
+        ipSchema.set(self.config['ipSchema'])
         ipSchema.trace("w", lambda name, index, mode, ipSchema=ipSchema: putterConfig.UpdateConfig('ipSchema', ipSchema.get()))
         ipSchemaEntry = Entry(self, width=40, textvariable=ipSchema)
         ipSchemaEntry.place(x=120,y=row7)

@@ -6,47 +6,70 @@ from putterTransferPage import TransferPage
 
 
 class Page(tix.Frame):
-    def __init__(self, *args, **kwargs):
-        tk.Frame.__init__(self, *args, **kwargs)
+    def __init__(self):
+        tk.Frame.__init__(self)
     def show(self):
         self.lift()
 
 
-class MainView(tk.Frame):
+class MainView(tk.Tk):
     def __init__(self, *args, **kwargs):
-        tk.Frame.__init__(self, *args, **kwargs)
+        tix.Tk.__init__(self, *args, **kwargs)
 
-        
-        def changePage(page):
-            print(page)
-            if page =='Main':
-                p1.show()
-                return p1
+        container= tk.Frame(self)
+        container.pack(side = "top", fill = "both", expand = True)
+  
+        container.grid_rowconfigure(0, weight = 1)
+        container.grid_columnconfigure(0, weight = 1)
+       # main = MainView(root)
+        #self.pack(side="top", fill="both", expand=True)
+        self.title("mediaPutter")
+        self.geometry("400x600+120+120")
+        self.frames = {}
+        for F in (MainPage,TransferPage):
+            frame = F(container,self)
+            self.frames[frame.name]=frame
+            frame.grid(row = 0, column = 0, sticky ="nsew")
+  
+        self.frames['MainPage'].tkraise()
+  
+    # to display the current frame passed as
+    # parameter
+
+    def quitTransfer(self):
+        self.frames['MainPage'].tkraise()
+
+    def startTransfer(self, serverList,config):
+       
+        transfer = self.frames['TransferPage']
+        transfer.start(serverList,config)
+        transfer.tkraise()
+  
+
       
 
-        p1 = MainPage(self)
-        p2 = ConfigPage(self)
+       # p1 = MainPage(changePage)
+        #p2 = TransferPage()
        # p3 = TransferPage(self)
     
-        buttonframe = tk.Frame(self)
-        container = tk.Frame(self)
-        buttonframe.pack(side="top", fill="x", expand=False)
-        container.pack(side="top", fill="both", expand=True)
+        #buttonframe = tk.Frame(self)
+        #container = tk.Frame(self)
+        #buttonframe.pack(side="top", fill="x", expand=False)
+        #container.pack(side="top", fill="both", expand=True)
 
-        p1.place(in_=container, x=0, y=0, relwidth=1, relheight=1)
-        p2.place(in_=container, x=0, y=0, relwidth=1, relheight=1)
+        #p1.place(in_=container, x=0, y=0, relwidth=1, relheight=1)
+        #p2.place(in_=container, x=0, y=0, relwidth=1, relheight=1)
       #  p3.place(in_=container, x=0, y=0, relwidth=1, relheight=1)
 
-        b1 = tk.Button(buttonframe, text="Page 1", command=p1.show)
-        b2 = tk.Button(buttonframe, text="Preferences", command=p2.show)
+        #b1 = tk.Button(buttonframe, text="Page 1", command=p1.show)
+       
+        #b2 = tk.Button(buttonframe, text="Preferences", command=p2.show)
+        
        # b3 = tk.Button(buttonframe, text="Start Transfer", command=p3.show)
 
-        p1.show()
+
+        #p1.show()
 
 if __name__ == "__main__":
-    root = tix.Tk()
-    main = MainView(root)
-    main.pack(side="top", fill="both", expand=True)
-    root.title("mediaPutter")
-    root.geometry("400x600+120+120")
+    root = MainView()
     root.mainloop()
