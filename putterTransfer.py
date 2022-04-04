@@ -1,4 +1,5 @@
 
+from http import server
 import signal
 import os
 import subprocess
@@ -50,15 +51,28 @@ class Putt():
     def getProcesses(self):
         return self.processes
 
+    def getDest(self,includeDestinationFolder= True):
+        
+        if(self.config['ipSchema']):
+            dest = self.config['ipSchema']+":"+self.config['destinationPath']
+        else:
+            dest = self.config['destinationPath']
+
+        if(includeDestinationFolder):
+            dest+=self.config['destinationFolder']
+
+        return dest
+
     def start(self):
         self.stopPoll =threading.Thread(target=checkStop,args=(self.stopThread,self.getProcesses,self.stop,))
         self.stopPoll.start()
         
-        tempFolder = self.makeDestinationFolder()
+        
         for serverID in self.serverList:
                     if(self.stopThread()):
                         print('Got Stop in Server Loop',serverID)
                         break
+                    tempFolder = self.makeDestinationFolder(serverID)
                     self.feedback(serverID, None, 'Starting')
                     try:
                         self.feedback(serverID, None, self.sendDestinationFolders(serverID, tempFolder))
@@ -69,18 +83,14 @@ class Putt():
                                 self.feedback(serverID,file, 'Starting')
                                 fileFeedback = self.sendFile(file,serverID)
                                 self.feedback(serverID, file, fileFeedback )
-                                self.feedback(serverID, None, 'Complete') 
                                 self.fileQueue.remove({serverID:file})
 
                     except Exception as e:
                             self.feedback(serverID,None,  e)
-                    print('Server',serverID, 'Done')
-
-        print('Finishing Up Transfers',self.processes)                    
-        try:
-            self.removeDestinationFolder(tempFolder)
-        except:
-            print('Can Not Remove Temp Folder')
+                    try:
+                        self.removeDestinationFolder(tempFolder)
+                    except:
+                        print('Can Not Remove Temp Folder')
             
 
         if (self.stopFlag):
@@ -91,8 +101,9 @@ class Putt():
             self.feedback(None,None,'Done!')
             self.stopThread(True)
 
-    def run(self,cmd):
-
+    def run(self,cmd:str):
+        #Cleans Wildcards
+        cmd = cmd.replace('*','')
         try:
             print('Job Starting',cmd)
             if(platform.system() == 'Windows'):
@@ -162,13 +173,18 @@ class Putt():
     def removeDestinationFolder(self, tempFolder: Path):
         tempFolder.rmdir()
 
-    def makeDestinationFolder(self):
+    def replaceIDWildCard(self,cmd:str, serverID:int):
+        return cmd.replace('$ID',str(serverID))
+
+    def makeDestinationFolder(self,serverID):
     
         configPath = putterConfig.getPutterFolderPath()
         #print(configPath.as_posix())
+        dest = self.replaceIDWildCard(self.config.get('destinationFolder'),serverID)
         
-        tempFolder = configPath / self.config.get('destinationFolder')
-        #print(tempFolder)
+        tempFolder = configPath / dest
+
+        print(tempFolder)
         tempFolder.mkdir(parents=True, exist_ok=True)
         return tempFolder
 
@@ -177,7 +193,8 @@ class Putt():
         tempPath = tempFolder.as_posix()
         try:
             
-            cmd = "scp -rv "+tempPath+" "+self.config['ipSchema']+str(serverID)+":"+self.config['destinationPath']
+            cmd:str = "scp -rv "+tempPath+" "+self.getDest(False)
+            cmd = self.replaceIDWildCard(cmd,serverID)
             results = self.run(cmd)
             if 'Exit status 0' in results:
                 return 'Successfully placed Destination Folder'
@@ -193,8 +210,10 @@ class Putt():
         #print(cmd)
         raise Exception('Failed to place Destination Folder')
 
+
     def deleteFile(self, serverID, fileName):
-        cmd = "echo 'rm "+fileName+"' | sftp "+self.config['ipSchema']+str(serverID)+":"+self.config['destinationPath']+self.config['destinationFolder']
+        cmd:str = "echo 'rm "+fileName+"' | sftp "+self.getDest()
+        cmd = self.replaceIDWildCard(cmd,serverID)
         self.run(cmd)
 
     def sendFile(self,fileName, serverID):
@@ -204,18 +223,19 @@ class Putt():
         file = file / fileName
         file = file.as_posix()
         try:
-        
-            cmd = "echo 'ls' | sftp "+self.config['ipSchema']+str(serverID)+":"+self.config['destinationPath']+self.config['destinationFolder']
+          
+            cmd:str = "echo 'ls' | sftp "+self.getDest()
+            cmd = self.replaceIDWildCard(cmd,serverID)
             remoteFiles = self.run(cmd)
             hasFile = remoteFiles.find(fileName)>-1
             if not hasFile:
-                cmd = "scp -v "+file+" "+self.config['ipSchema']+str(serverID)+":"+self.config['destinationPath']+self.config['destinationFolder']
+                cmd = "scp -v "+file+" "+self.getDest()
             else:
                 return 'File Already Exist'
     
         except Exception as e:
             raise Exception('Malformed Config',e)
-
+        cmd = self.replaceIDWildCard(cmd,serverID)
         result = self.run(cmd)
         if(result.index('Exit status 0')>-1):
             return 'Complete'

@@ -99,7 +99,9 @@ class MainPage(Frame):
         
         def startPutter():
             global row1
-            configError.config(text='')
+            if(configError.cget("text")):
+                print(configError.cget('text'))
+                return 
             for item, value in putterConfig.ReadConfig().items():
                 
                 if item == 'destinationFolder' or item == 'destinationPath' or item == 'ipSchema':
@@ -107,6 +109,8 @@ class MainPage(Frame):
                         print('bad item',item)
                         configError.config(text=item+" Can NOT be blank")
                         return
+                    else:
+                        configError.config(text='')
            
            # transferPage.start(hideTransfer,cancelTransfer)
             #transferPage = TransferPage(self,cancelTransfer,hideTransfer)
@@ -198,7 +202,11 @@ class MainPage(Frame):
         Label(self,text="Destination Folder:").place(x=10, y=row5)
 
         def updateConfig(lineItem,value):
-            self.config = putterConfig.UpdateConfig(lineItem,value)
+            if '*' in value:
+                configError.config(text=lineItem+' Can Not Use *')
+            else:
+                configError.config(text='')
+                self.config = putterConfig.UpdateConfig(lineItem,value)
 
         destinationFolder.trace("w", lambda name, index, mode, destinationFolder=destinationFolder: updateConfig('destinationFolder',destinationFolder.get()))
         destinationFolderEntry = Entry(self, width=40, textvariable=destinationFolder)
