@@ -19,7 +19,7 @@ def checkStop(stopThread, processes, stop):
         
 
 class Putt():
-    def __init__(self, serverList: dict, config, feedback,stopThread):
+    def __init__(self, serverList: dict, config:dict, feedback,stopThread):
         
             self.processes = []
             self.fileQueue =[]
@@ -60,46 +60,61 @@ class Putt():
                         print('Got Stop in Server Loop',serverID)
                         break
                     self.feedback(serverID, None, 'Starting')
-                    #try:
-                    self.feedback(serverID, None, self.sendDestinationFolders(serverID, tempFolder))
-                        #print('Stop?',self.stopThread())
-                    self.feedback(serverID, None,'Sending Files to Server')
-                    for file in self.serverList.get(serverID):
-                            print("File",file)
-                            self.fileQueue.append({serverID:file})
-                            self.feedback(serverID,file, 'Starting')
-                            fileFeedback = self.sendFile(file,serverID)
-                            self.feedback(serverID, file, fileFeedback )
-                            self.feedback(serverID, None, 'Complete') 
-                            self.fileQueue.remove({serverID:file})
+                    try:
+                        self.feedback(serverID, None, self.sendDestinationFolders(serverID, tempFolder))
+                        self.feedback(serverID, None,'Sending Files to Server')
+                        for file in self.serverList.get(serverID):
+                                print("File",file)
+                                self.fileQueue.append({serverID:file})
+                                self.feedback(serverID,file, 'Starting')
+                                fileFeedback = self.sendFile(file,serverID)
+                                self.feedback(serverID, file, fileFeedback )
+                                self.feedback(serverID, None, 'Complete') 
+                                self.fileQueue.remove({serverID:file})
 
-                    #except Exception as e:
-                     #       self.feedback(serverID,None,  e)
+                    except Exception as e:
+                            self.feedback(serverID,None,  e)
+                    print('Server',serverID, 'Done')
 
-        self.removeDestinationFolder(tempFolder)
+        print('Finishing Up Transfers',self.processes)                    
+        try:
+            self.removeDestinationFolder(tempFolder)
+        except:
+            print('Can Not Remove Temp Folder')
             
 
         if (self.stopFlag):
             self.feedback(None,None,'Transfer Stopped')
             print('Transfer Thread Alive?',self.stopPoll.is_alive())
-        elif not self.processes:
+        if not self.processes:
             time.sleep(1)
             self.feedback(None,None,'Done!')
             self.stopThread(True)
 
     def run(self,cmd):
-        print('Job Starting',cmd)
-        if(platform.system() == 'Windows'):
-            p= self.runWindows(cmd)
-        else:
-            p = self.runUnix(cmd)
-        self.processes.append(p)
-        out = p.communicate()
-        if not p.poll():
-            self.processes.remove(p)
-            print('Job done',cmd)
-        
-        return out[0]+out[1]
+
+        try:
+            print('Job Starting',cmd)
+            if(platform.system() == 'Windows'):
+                p= self.runWindows(cmd)
+            else:
+                p = self.runUnix(cmd)
+            self.processes.append(p)
+            out = p.communicate()
+            if not p.poll() or out[1]:
+                self.processes.remove(p)
+                print('Job done',cmd)
+            
+            return out[0]+out[1]
+        except:
+            print('Run Got Error',p, self.processes)
+            p.terminate()
+            try:
+                self.processes.remove(p)
+            except:
+                None
+
+            return out[0]+out[1]
 
 
     def runUnix(self,cmd):
@@ -152,7 +167,7 @@ class Putt():
         configPath = putterConfig.getPutterFolderPath()
         #print(configPath.as_posix())
         
-        tempFolder = configPath / self.config['destinationFolder']
+        tempFolder = configPath / self.config.get('destinationFolder')
         #print(tempFolder)
         tempFolder.mkdir(parents=True, exist_ok=True)
         return tempFolder
@@ -164,20 +179,27 @@ class Putt():
             
             cmd = "scp -rv "+tempPath+" "+self.config['ipSchema']+str(serverID)+":"+self.config['destinationPath']
             results = self.run(cmd)
-            if(results.find('Exit status 0')>-1):
+            if 'Exit status 0' in results:
                 return 'Successfully placed Destination Folder'
+            elif 'user (unspecified)' in results:
+                raise Exception('Invalid User')
+            elif 'lost connection' in results:
+                raise Exception('Could Not Connect To Client')
                 
         except Exception as e:
-            raise Exception('Malformed Config',e)   
+            print(e)
+            raise e   
         
         #print(cmd)
         raise Exception('Failed to place Destination Folder')
+
     def deleteFile(self, serverID, fileName):
         cmd = "echo 'rm "+fileName+"' | sftp "+self.config['ipSchema']+str(serverID)+":"+self.config['destinationPath']+self.config['destinationFolder']
         self.run(cmd)
+
     def sendFile(self,fileName, serverID):
         print('Sending File!',fileName, 'to',serverID)
-        print('SourceFolder',self.config['sourceFolder'])
+        
         file = Path(self.config['sourceFolder'])
         file = file / fileName
         file = file.as_posix()
@@ -185,7 +207,6 @@ class Putt():
         
             cmd = "echo 'ls' | sftp "+self.config['ipSchema']+str(serverID)+":"+self.config['destinationPath']+self.config['destinationFolder']
             remoteFiles = self.run(cmd)
-            print(remoteFiles)
             hasFile = remoteFiles.find(fileName)>-1
             if not hasFile:
                 cmd = "scp -v "+file+" "+self.config['ipSchema']+str(serverID)+":"+self.config['destinationPath']+self.config['destinationFolder']
@@ -195,7 +216,6 @@ class Putt():
         except Exception as e:
             raise Exception('Malformed Config',e)
 
-        print(cmd)
         result = self.run(cmd)
         if(result.index('Exit status 0')>-1):
             return 'Complete'

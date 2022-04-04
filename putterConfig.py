@@ -1,7 +1,7 @@
 from pathlib import Path
 import json
 from webbrowser import get
-defaultConfig = '{"sourceFolder": "", "filter": "", "destinationFolder": "", "destinationPath" : "/Applications/Mbox/Media/", "ipSchema" : "192.168.11."}'
+defaultConfig = '{"sourceFolder": "", "filter": "", "destinationFolder": "", "destinationPath" : "/Applications/Mbox/Media/", "ipSchema" : "192.168.11.", "idSize": 3, "idMod": 0}'
 defaults = json.loads(defaultConfig)
 
 currentConfig = defaults
@@ -46,14 +46,31 @@ def ReadConfig():
 
 def UpdateConfig(lineItem, value):
     current = ReadConfig()
+    #print(lineItem, value, type(value))
+
+    if((lineItem == 'idSize' or lineItem =='idMod') and type(value) is not int):
+        if '-' in value:
+            try:
+                value = int(value)
+            except:
+                value = 0
+        else:
+            value = int('0'+value)
+
+
     newItem = {lineItem: value}
     updated= { **current, **newItem }
     file = open(getPath(),'w')
     file.write(json.dumps(updated))
     file.close()
     updateCurrentConfig(updated)
+    return updated
+
+    
 
 def getConfig(item):
     global currentConfig
-    if(item == 'filter'):
-        return currentConfig['filter']
+    #if(item == 'filter'):
+    #    return currentConfig['filter']
+    return currentConfig.get(item)
+    
