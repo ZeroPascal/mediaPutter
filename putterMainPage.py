@@ -31,9 +31,8 @@ class MainPage(Frame):
         idMod =StringVar()
         idMod.set(self.config.get('idMod'))
         fileDirectory = Listbox(self,width=55,selectmode=EXTENDED,name='fileDirectory')
-       # fileDirectory = Treeview(self, height=8,columns=['Main'])
-        #fileDirectory.column('Main',minwidth=10)
-        #print(fileDirectory.identify_column(0))
+        overwriteFiles = IntVar()
+        overwriteFiles.set(self.config.get('overwriteFiles'))
         configError=Label(self,text="")
         destinationFolder =StringVar()
         destinationFolder.set(self.config.get('destinationFolder'))
@@ -94,9 +93,10 @@ class MainPage(Frame):
         
         def cancelTransfer():
             print('Canceling')
-           
             self.show()
         
+        
+
         def startPutter():
             global row1
             if(configError.cget("text")):
@@ -111,12 +111,12 @@ class MainPage(Frame):
                         return
                     else:
                         configError.config(text='')
-           
-           # transferPage.start(hideTransfer,cancelTransfer)
-            #transferPage = TransferPage(self,cancelTransfer,hideTransfer)
+   
             self.controller.startTransfer(self.serverList,self.config)
-            #p = threading.Thread(target=putterTransfer.Putt, args=(self.serverList, transferPage.logFeedback))
-           # p.start()
+        def setOverWrite():
+
+            self.config = putterConfig.UpdateConfig('overwriteFiles',overwriteFiles.get())
+
         def updateIDSize(idSizeString:str):
 
             self.config =putterConfig.UpdateConfig('idSize',idSizeString.strip())   
@@ -227,7 +227,8 @@ class MainPage(Frame):
         ipSchema.trace("w", lambda name, index, mode, ipSchema=ipSchema: updateConfig('ipSchema', ipSchema.get()))
         ipSchemaEntry = Entry(self, width=40, textvariable=ipSchema)
         ipSchemaEntry.place(x=120,y=row7)
-
+        
+        Checkbutton(self,text='Overwrite Files',variable=overwriteFiles,onvalue=1,offvalue=0,command=setOverWrite).place(x=10,y=row7+25)
         row8 = row7+50
         
         configError.place(x=15,y=row8-20)

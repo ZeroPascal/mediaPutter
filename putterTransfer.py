@@ -224,15 +224,15 @@ class Putt():
         file = file / fileName
         file = file.as_posix()
         try:
-          
-            cmd:str = "echo 'ls' | sftp "+self.getDest()
-            cmd = self.replaceIDWildCard(cmd,serverID)
-            remoteFiles = self.run(cmd)
-            hasFile = remoteFiles.find(fileName)>-1
-            if not hasFile:
-                cmd = "scp -v "+file+" "+self.getDest()
-            else:
-                return 'File Already Exist'
+            if(self.config['overwriteFiles'] == 0):
+                cmd:str = "echo 'ls' | sftp "+self.getDest()
+                cmd = self.replaceIDWildCard(cmd,serverID)
+                remoteFiles = self.run(cmd)
+                hasFile = remoteFiles.find(fileName)>-1
+                if hasFile:
+                     return 'File Already Exist'
+            
+            cmd = "scp -v "+file+" "+self.getDest()       
     
         except Exception as e:
             raise Exception('Malformed Config',e)

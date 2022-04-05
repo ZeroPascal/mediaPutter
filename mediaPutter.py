@@ -22,7 +22,7 @@ class MainView(tk.Tk):
         container.grid_columnconfigure(0, weight = 1)
        # main = MainView(root)
         #self.pack(side="top", fill="both", expand=True)
-        self.title("mediaPutter")
+        self.title("mediaPutter v2.4")
         self.geometry("400x600+120+120")
         self.frames = {}
         for F in (MainPage,TransferPage):
