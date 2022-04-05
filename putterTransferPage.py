@@ -92,13 +92,12 @@ class TransferPage(Frame):
             else:
                 sMSG = ''
             self.updateBoard.insert(i, str(server)+' '+sMSG)
-            if sMSG == '':
-                self.updateBoard.itemconfig(i,{'fg':'black'})
-            elif('Starting' in sMSG or 'Successfully' in sMSG or 'Sending Files' in sMSG):
-                self.updateBoard.itemconfig(i,{'bg':'yellow'})
+            
+            if('Starting' in sMSG or 'Successfully' in sMSG or 'Sending Files' in sMSG):
+                self.updateBoard.itemconfig(i,{'bg':'yellow','fg':'black'})
             elif('Complete' in sMSG):
                 self.updateBoard.itemconfig(i,{'bg':'green'})
-            else:
+            elif (sMSG !=''):
                self.updateBoard.itemconfig(i,{'fg':'red'})
 
             i+= 1
@@ -108,12 +107,14 @@ class TransferPage(Frame):
                 else:
                     message = ''
                 self.updateBoard.insert(i,'      '+file+' '+message)
-                if(sMSG != '' and not ('Starting' in sMSG or 'Complete' in sMSG)):
-                    self.updateBoard.itemconfig(i,{'fg':'red'})  
+                if('Starting' in message):
+                    self.updateBoard.itemconfig(i,{'bg':'yellow','fg':'black'})  
                 elif('Already Exist' in message):
-                    self.updateBoard.itemconfig(i,{'bg':'yellow'})  
+                    self.updateBoard.itemconfig(i,{'bg':'orange'})  
                 elif('Complete' in message):
-                    self.updateBoard.itemconfig(i,{'fg':'green'})  
+                    self.updateBoard.itemconfig(i,{'fg':'green'}) 
+                elif(sMSG != '' and not ('Starting'in sMSG or 'Complete' in sMSG or 'Sending Files' in sMSG)) :
+                    self.updateBoard.itemconfig(i,{'fg':'red'})
                 i+=1
         
 

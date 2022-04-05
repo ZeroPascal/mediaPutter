@@ -84,7 +84,7 @@ class Putt():
                         self.feedback(serverID,None,'Complete')
 
                     except Exception as e:
-                            print(e)
+                            print('Main Loop Error',e)
                             if(e!='File Already Exist'):
                                 self.feedback(serverID,None,  e)
                     
@@ -111,6 +111,7 @@ class Putt():
                 p= self.runWindows(cmd)
             else:
                 p = self.runUnix(cmd)
+               
             self.processes.append(p)
             out = p.communicate()
             if not p.poll() or out[1]:
@@ -130,7 +131,7 @@ class Putt():
 
 
     def runUnix(self,cmd):
-        return subprocess.Popen([cmd],stdout=subprocess.PIPE,stderr=subprocess.PIPE, stdin=subprocess.PIPE, text=True)
+        return subprocess.Popen([cmd],stdout=subprocess.PIPE,stderr=subprocess.PIPE, stdin=subprocess.PIPE, text=True,shell=True)
 
     def runWindows(self,cmd):
         return subprocess.Popen(['powershell',cmd],stdout=subprocess.PIPE,stderr=subprocess.PIPE, text=True, shell=True)
@@ -180,12 +181,11 @@ class Putt():
     def makeDestinationFolder(self,serverID):
     
         configPath = putterConfig.getPutterFolderPath()
-        #print(configPath.as_posix())
+
         dest = self.replaceIDWildCard(self.config.get('destinationFolder'),serverID)
         
         tempFolder = configPath / dest
 
-        print(tempFolder)
         tempFolder.mkdir(parents=True, exist_ok=True)
         return tempFolder
 
@@ -205,11 +205,11 @@ class Putt():
                 raise Exception('Could Not Connect To Client')
                 
         except Exception as e:
-            print(e)
+            print('sendDest Error',e)
             raise e   
         
         #print(cmd)
-        raise Exception('Failed to place Destination Folder')
+        #raise Exception('Failed to place Destination Folder')
 
 
     def deleteFile(self, serverID, fileName):
