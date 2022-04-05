@@ -2,15 +2,12 @@ from sre_compile import isstring
 from tkinter import *
 from tkinter import tix
 from tkinter import filedialog
-import threading
 from os import listdir
 from os.path import isfile, join
+from tkinter.ttk import Treeview
 from putterConfigPage import update
-import putterTransfer
 import putterConfig
 import re
-import time
-
 from putterTransferPage import TransferPage
 
 class MainPage(Frame):
@@ -33,7 +30,10 @@ class MainPage(Frame):
         idSizeString.set(putterConfig.getConfig('idSize'))
         idMod =StringVar()
         idMod.set(self.config.get('idMod'))
-        fileDirectory = tix.HList(self,width=55, height=12)
+        fileDirectory = Listbox(self,width=55,selectmode=EXTENDED,name='fileDirectory')
+       # fileDirectory = Treeview(self, height=8,columns=['Main'])
+        #fileDirectory.column('Main',minwidth=10)
+        #print(fileDirectory.identify_column(0))
         configError=Label(self,text="")
         destinationFolder =StringVar()
         destinationFolder.set(self.config.get('destinationFolder'))
@@ -130,7 +130,7 @@ class MainPage(Frame):
             self.config =putterConfig.UpdateConfig('filter',filter)
             self.serverList = {}
             idMod = self.config.get('idMod')
-            fileDirectory.delete_all()
+            fileDirectory.delete(0,fileDirectory.size())
 
             for file in self.mediaFiles:
               
@@ -158,13 +158,15 @@ class MainPage(Frame):
                             self.serverList[serverID] = [file]
                         else:
                             self.serverList[serverID].append(file)
-
+            i =0 
             for server in self.serverList:
-                pPath = fileDirectory.add(server, text=server)
-                i = 0
+                fileDirectory.insert(i,server)
+                i+=1
                 for file in self.serverList.get(server):
-                    fileDirectory.add_child(pPath,text=file)
-                    i+=1
+                    #id:str = str(pID)+'@'+str(i)
+                    fileDirectory.insert(i,"    "+file)
+                   # i+=1
+                i+=1
             #print(self.serverList)
 
         updateMediaFolder()

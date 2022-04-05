@@ -1,10 +1,7 @@
-import multiprocessing
-import os
-import signal
 import threading
 #import multiprocessing
 from tkinter import *
-from tkinter import tix
+from tkinter.ttk import Treeview
 import putterTransfer
 
 class TransferPage(Frame):
@@ -15,7 +12,7 @@ class TransferPage(Frame):
         self.serverList = {}
         self.stopTransfer = False
         Label(self,text='Transfer updateBoard').place(x=10, y=10)
-        self.updateBoard=tix.HList(self,width=55,height=15)
+        self.updateBoard=Listbox(self,width=55,selectmode=EXTENDED,name='updateBoard')
         self.updateBoard.place(x=10,y=30)
        # self.cancelCallback = cancel
         #self.hideCallback = hide
@@ -85,22 +82,40 @@ class TransferPage(Frame):
 
     def redrawBoard(self):
         #print('Redrawing Board')
-        self.updateBoard.delete_all()
+        self.updateBoard.delete(0,self.updateBoard.size())
+        #self.updateBoard.delete_all()
+        i=0
         for server in self.serverList:
             if server in self.serverMessageList.keys():
                 sMSG = self.serverMessageList[server]
                 #print('ServerMessage',server,sMSG)
             else:
                 sMSG = ''
-            pPath = self.updateBoard.add(server, text=str(server)+' '+sMSG)
-            i = 0
+            self.updateBoard.insert(i, str(server)+' '+sMSG)
+            if sMSG == '':
+                self.updateBoard.itemconfig(i,{'fg':'black'})
+            elif('Starting' in sMSG or 'Successfully' in sMSG or 'Sending Files' in sMSG):
+                self.updateBoard.itemconfig(i,{'bg':'yellow'})
+            elif('Complete' in sMSG):
+                self.updateBoard.itemconfig(i,{'bg':'green'})
+            else:
+               self.updateBoard.itemconfig(i,{'fg':'red'})
+
+            i+= 1
             for file in self.serverList.get(server):
                 if server in self.fileMessageList.keys() and file in self.fileMessageList[server].keys():
                     message= self.fileMessageList[server][file]
                 else:
                     message = ''
-                self.updateBoard.add_child(pPath,text=file+' '+message)
+                self.updateBoard.insert(i,'      '+file+' '+message)
+                if(sMSG != '' and not ('Starting' in sMSG or 'Complete' in sMSG)):
+                    self.updateBoard.itemconfig(i,{'fg':'red'})  
+                elif('Already Exist' in message):
+                    self.updateBoard.itemconfig(i,{'bg':'yellow'})  
+                elif('Complete' in message):
+                    self.updateBoard.itemconfig(i,{'fg':'green'})  
                 i+=1
+        
 
     def start(self, serverList,config):
         self.serverList = serverList

@@ -1,7 +1,4 @@
 
-from http import server
-import signal
-import os
 import subprocess
 import platform
 from pathlib import Path
@@ -84,9 +81,13 @@ class Putt():
                                 fileFeedback = self.sendFile(file,serverID)
                                 self.feedback(serverID, file, fileFeedback )
                                 self.fileQueue.remove({serverID:file})
+                        self.feedback(serverID,None,'Complete')
 
                     except Exception as e:
-                            self.feedback(serverID,None,  e)
+                            print(e)
+                            if(e!='File Already Exist'):
+                                self.feedback(serverID,None,  e)
+                    
                     try:
                         self.removeDestinationFolder(tempFolder)
                     except:

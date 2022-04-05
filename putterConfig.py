@@ -1,6 +1,5 @@
 from pathlib import Path
 import json
-from webbrowser import get
 defaultConfig = '{"sourceFolder": "", "filter": "", "destinationFolder": "", "destinationPath" : "/Applications/Mbox/Media/", "ipSchema" : "192.168.11.", "idSize": 3, "idMod": 0}'
 defaults = json.loads(defaultConfig)
 

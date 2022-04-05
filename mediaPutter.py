@@ -1,11 +1,10 @@
 import tkinter as tk
-from tkinter import tix
-from putterConfigPage import ConfigPage
+#from tkinter import tix
 from putterMainPage import MainPage
 from putterTransferPage import TransferPage
 
 
-class Page(tix.Frame):
+class Page(tk.Frame):
     def __init__(self):
         tk.Frame.__init__(self)
     def show(self):
@@ -14,7 +13,7 @@ class Page(tix.Frame):
 
 class MainView(tk.Tk):
     def __init__(self, *args, **kwargs):
-        tix.Tk.__init__(self, *args, **kwargs)
+        tk.Tk.__init__(self, *args, **kwargs)
 
         container= tk.Frame(self)
         container.pack(side = "top", fill = "both", expand = True)
