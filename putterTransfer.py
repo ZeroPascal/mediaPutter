@@ -105,6 +105,7 @@ class Putt():
     def run(self,cmd:str):
         #Cleans Wildcards
         cmd = cmd.replace('*','')
+        print(cmd)
         try:
             print('Job Starting',cmd)
             if(platform.system() == 'Windows'):
@@ -192,6 +193,7 @@ class Putt():
     def sendDestinationFolders(self,serverID, tempFolder: Path):
         #print(self.config)
         tempPath = tempFolder.as_posix()
+        print('Temp Path: ',tempPath)
         try:
             
             cmd:str = "scp -rv "+tempPath+" "+self.getDest(False)
@@ -225,14 +227,14 @@ class Putt():
         file = file.as_posix()
         try:
             if(self.config['overwriteFiles'] == 0):
-                cmd:str = "echo 'ls' | sftp "+self.getDest()
+                cmd:str = "echo 'ls' | sftp '"+self.getDest()+"'"
                 cmd = self.replaceIDWildCard(cmd,serverID)
                 remoteFiles = self.run(cmd)
                 hasFile = remoteFiles.find(fileName)>-1
                 if hasFile:
                      return 'File Already Exist'
             
-            cmd = "scp -v "+file+" "+self.getDest()       
+            cmd = "scp -v '"+file+"' '"+self.getDest()+"'"       
     
         except Exception as e:
             raise Exception('Malformed Config',e)
