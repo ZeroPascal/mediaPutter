@@ -141,7 +141,6 @@ class MainPage(Frame):
                         rex = ''
                     match = re.findall(rex ,file)
 
-
                     if match:
                         id =''
                         for i in range(self.config.get('idSize')):
@@ -153,7 +152,7 @@ class MainPage(Frame):
                             serverID = int(re.search(rex2,match[0]).group(0))+idMod
                         except:
                             serverID = 0+idMod
-                            
+                        print(serverID, file)
                         if not self.serverList.get(serverID):
                             self.serverList[serverID] = [file]
                         else:
@@ -165,7 +164,7 @@ class MainPage(Frame):
                 for file in self.serverList.get(server):
                     #id:str = str(pID)+'@'+str(i)
                     fileDirectory.insert(i,"    "+file)
-                   # i+=1
+                    i+=1
                 i+=1
             #print(self.serverList)
 
