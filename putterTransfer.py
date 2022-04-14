@@ -10,7 +10,7 @@ import putterConfig
 def checkStop(stopThread, processes, stop):
     while not stopThread():
         time.sleep(.5)
-    print('CheckStop Sending Stop!')
+   # print('CheckStop Sending Stop!')
     #print(processes())
     stop(processes())
     raise SystemExit()
@@ -48,16 +48,18 @@ class Putt():
     def getProcesses(self):
         return self.processes
 
+    def cleanPath(self,path:str):
+        # 
+        return '"\''+path+'\'"'
+
     def getDest(self,includeDestinationFolder= True):
+        dest = self.config['destinationPath'] 
+        if(includeDestinationFolder):
+            dest+= self.config['destinationFolder']
         
         if(self.config['ipSchema']):
-            dest = self.config['ipSchema']+":"+self.config['destinationPath']
-        else:
-            dest = self.config['destinationPath']
-
-        if(includeDestinationFolder):
-            dest+=self.config['destinationFolder']
-
+            dest = self.config['ipSchema']+":"+'"\''+dest+'\'"'
+        
         return dest
 
     def start(self):
@@ -65,7 +67,7 @@ class Putt():
         self.stopPoll.start()
         
         
-        for serverID in self.serverList:
+        for serverID in sorted (self.serverList.keys()):
                     if(self.stopThread()):
                         print('Got Stop in Server Loop',serverID)
                         break
@@ -75,7 +77,7 @@ class Putt():
                         self.feedback(serverID, None, self.sendDestinationFolders(serverID, tempFolder))
                         self.feedback(serverID, None,'Sending Files to Server')
                         for file in self.serverList.get(serverID):
-                                print("File",file)
+                                #print("File",file)
                                 self.fileQueue.append({serverID:file})
                                 self.feedback(serverID,file, 'Starting')
                                 fileFeedback = self.sendFile(file,serverID)
@@ -96,7 +98,7 @@ class Putt():
 
         if (self.stopFlag):
             self.feedback(None,None,'Transfer Stopped')
-            print('Transfer Thread Alive?',self.stopPoll.is_alive())
+           # print('Transfer Thread Alive?',self.stopPoll.is_alive())
         if not self.processes:
             time.sleep(1)
             self.feedback(None,None,'Done!')
@@ -105,7 +107,7 @@ class Putt():
     def run(self,cmd:str):
         #Cleans Wildcards
         cmd = cmd.replace('*','')
-        print(cmd)
+        #print(cmd)
         try:
             print('Job Starting',cmd)
             if(platform.system() == 'Windows'):
@@ -117,7 +119,7 @@ class Putt():
             out = p.communicate()
             if not p.poll() or out[1]:
                 self.processes.remove(p)
-                print('Job done',cmd)
+                print('     Job done',cmd)
             
             return out[0]+out[1]
         except:
@@ -136,42 +138,6 @@ class Putt():
 
     def runWindows(self,cmd):
         return subprocess.Popen(['powershell',cmd],stdout=subprocess.PIPE,stderr=subprocess.PIPE, text=True, shell=True)
-
-    def cmdTest(self):
-        #if(platform.system() == 'Windows'):
-        #   print(subprocess.run(["powershell","ping", "192.168.1.1"],stdout=subprocess.PIPE))
-
-        #cmd = "echo 'put C:\\Users\\Winst\\Desktop\\frida.aif' | sftp pi@192.168.1.8:Desktop/"
-        if(platform.system() == 'Windows'):
-            
-            cmd = "echo 'ls' | sftp pi@192.168.1.8:Desktop/"
-            file = 'test with spaces.txt'
-            remoteFiles = self.runWindows(cmd)
-            hasFile = remoteFiles.find(file)>-1
-            print(file, ' is on Remote Server? ', hasFile)
-            if not hasFile:
-                cmd = "scp -v C:\\Users\\Winst\\Desktop\\"+file+" pi@192.168.1.8:Desktop"
-                results = self.runWindows(cmd)
-                if(results.find('Exit status 0')>-1):
-               # if(results == 0):
-                    return 'Transfer Successful'
-                else:
-                    return 'Transfer Failed'
-            else:
-                return 'File Already Exist'
-
-    
-            #while True:
-            
-            #   output = process.stdout
-            #  if process.poll() is not None:
-            #     print('Done')
-                #    break
-                #if output != '':
-                #   print(str(output))
-
-
-
 
     def removeDestinationFolder(self, tempFolder: Path):
         tempFolder.rmdir()
@@ -193,7 +159,8 @@ class Putt():
     def sendDestinationFolders(self,serverID, tempFolder: Path):
         #print(self.config)
         tempPath = tempFolder.as_posix()
-        print('Temp Path: ',tempPath)
+        tempPath = "'"+tempPath+"'" #self.cleanPath(tempPath)
+       # print('Temp Path: ',tempPath)
         try:
             
             cmd:str = "scp -rv "+tempPath+" "+self.getDest(False)
@@ -205,6 +172,8 @@ class Putt():
                 raise Exception('Invalid User')
             elif 'lost connection' in results:
                 raise Exception('Could Not Connect To Client')
+            elif 'ambiguous target' in results:
+                raise Exception('Malformed Target')
                 
         except Exception as e:
             print('sendDest Error',e)
@@ -220,21 +189,22 @@ class Putt():
         self.run(cmd)
 
     def sendFile(self,fileName, serverID):
-        print('Sending File!',fileName, 'to',serverID)
+       # print('Sending File!',fileName, 'to',serverID)
         
         file = Path(self.config['sourceFolder'])
         file = file / fileName
         file = file.as_posix()
+        file = "'"+file+"'" #self.cleanPath(file)
         try:
             if(self.config['overwriteFiles'] == 0):
-                cmd:str = "echo 'ls' | sftp '"+self.getDest()+"'"
+                cmd:str = "echo 'ls' | sftp "+self.getDest()
                 cmd = self.replaceIDWildCard(cmd,serverID)
                 remoteFiles = self.run(cmd)
                 hasFile = remoteFiles.find(fileName)>-1
                 if hasFile:
                      return 'File Already Exist'
             
-            cmd = "scp -v '"+file+"' '"+self.getDest()+"'"       
+            cmd = "scp -v "+file+" "+self.getDest()       
     
         except Exception as e:
             raise Exception('Malformed Config',e)

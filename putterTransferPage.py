@@ -85,7 +85,7 @@ class TransferPage(Frame):
         self.updateBoard.delete(0,self.updateBoard.size())
         #self.updateBoard.delete_all()
         i=0
-        for server in self.serverList:
+        for server in sorted (self.serverList):
             if server in self.serverMessageList.keys():
                 sMSG = self.serverMessageList[server]
                 #print('ServerMessage',server,sMSG)

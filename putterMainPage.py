@@ -158,10 +158,10 @@ class MainPage(Frame):
                         else:
                             self.serverList[serverID].append(file)
             i =0 
-            for server in self.serverList:
+            for server in sorted (self.serverList.keys()):
                 fileDirectory.insert(i,server)
                 i+=1
-                for file in self.serverList.get(server):
+                for file in sorted (self.serverList.get(server)):
                     #id:str = str(pID)+'@'+str(i)
                     fileDirectory.insert(i,"    "+file)
                     i+=1
