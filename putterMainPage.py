@@ -1,3 +1,4 @@
+import platform
 from sre_compile import isstring
 from tkinter import *
 from tkinter import tix
@@ -23,14 +24,18 @@ class MainPage(Frame):
         self.config = putterConfig.ReadConfig()
         
         #self.config['sourceFolder']= self.initalConfig['sourceFolder']
-        mediaList = Listbox(self, width=65, selectmode=EXTENDED, name='mediaList')
+        if(platform.system() == 'Windows'):
+             listWidth = 65
+        else:
+            listWidth = 50    
+        mediaList = Listbox(self, width=listWidth, selectmode=EXTENDED, name='mediaList')
         filterString =StringVar()
         filterString.set(self.config.get('filter'))
         idSizeString = StringVar()
         idSizeString.set(putterConfig.getConfig('idSize'))
         idMod =StringVar()
         idMod.set(self.config.get('idMod'))
-        fileDirectory = Listbox(self,width=65,selectmode=EXTENDED,name='fileDirectory')
+        fileDirectory = Listbox(self,width=listWidth,selectmode=EXTENDED,name='fileDirectory')
         overwriteFiles = IntVar()
         overwriteFiles.set(self.config.get('overwriteFiles'))
         configError=Label(self,text="")
@@ -181,9 +186,12 @@ class MainPage(Frame):
         row3= row2+200
         filterLabel=Label(self,text="Filter:")
         filterLabel.place(x=10,y=row3)
-       
+        if(platform.system() == 'Windows'):
+            filterWidth = 15
+        else:
+            filterWidth = 8
         filterString.trace("w", lambda name, index, mode, filterString=filterString: updateFilter(filterString.get()))
-        filterEntry = Entry(self, textvariable=filterString,width=15)
+        filterEntry = Entry(self, textvariable=filterString,width=filterWidth)
         filterEntry.place(x=45,y=row3)
 
         Label(self,text='ID Size:').place(x=130,y=row3)
@@ -191,10 +199,10 @@ class MainPage(Frame):
         idSizeEntry = Entry(self, textvariable=idSizeString, width=3)
         idSizeEntry.place(x=180,y=row3)
         
-        Label(self,text='ID Mod:').place(x=210,y=row3)
+        Label(self,text='ID Mod:').place(x=220,y=row3)
         idMod.trace("w", lambda name, index, mode,  idMod=idMod: updateIDMod(idMod.get()))
         idModEntry = Entry(self, textvariable=idMod, width=5)
-        idModEntry.place(x=260,y=row3)
+        idModEntry.place(x=280,y=row3)
         row4= row3+25
         Label(self, text='Media Per Filtered Server:').place(x=10,y=row4)
         fileDirectory.place(x=10, y= row4+25)
@@ -208,24 +216,27 @@ class MainPage(Frame):
             else:
                 configError.config(text='')
                 self.config = putterConfig.UpdateConfig(lineItem,value)
-
+        if(platform.system() == 'Windows'):
+            longWidths = 40
+        else:
+            longWidths = 30
         destinationFolder.trace("w", lambda name, index, mode, destinationFolder=destinationFolder: updateConfig('destinationFolder',destinationFolder.get()))
-        destinationFolderEntry = Entry(self, width=40, textvariable=destinationFolder)
-        destinationFolderEntry.place(x=120,y=row5)
+        destinationFolderEntry = Entry(self, width=longWidths, textvariable=destinationFolder)
+        destinationFolderEntry.place(x=128,y=row5)
 
         row6 = row5+25
         Label(self,text="Destination Path:").place(x=10, y=row6)
   
         destinationPath.trace("w", lambda name, index, mode, destinationPath=destinationPath:updateConfig('destinationPath',destinationPath.get()))
-        destinationPathEntry = Entry(self, width=40, textvariable=destinationPath)
-        destinationPathEntry.place(x=120,y=row6)
+        destinationPathEntry = Entry(self, width=longWidths, textvariable=destinationPath)
+        destinationPathEntry.place(x=128,y=row6)
 
         row7 = row6+25
         Label(self,text="IP Schema:").place(x=10, y=row7)
       
         ipSchema.trace("w", lambda name, index, mode, ipSchema=ipSchema: updateConfig('ipSchema', ipSchema.get()))
-        ipSchemaEntry = Entry(self, width=40, textvariable=ipSchema)
-        ipSchemaEntry.place(x=120,y=row7)
+        ipSchemaEntry = Entry(self, width=longWidths, textvariable=ipSchema)
+        ipSchemaEntry.place(x=128,y=row7)
         
         Checkbutton(self,text='Overwrite Files',variable=overwriteFiles,onvalue=1,offvalue=0,command=setOverWrite).place(x=10,y=row7+25)
         row8 = row7+50

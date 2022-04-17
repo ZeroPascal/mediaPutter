@@ -1,3 +1,4 @@
+import platform
 import tkinter as tk
 #from tkinter import tix
 from putterMainPage import MainPage
@@ -22,7 +23,10 @@ class MainView(tk.Tk):
         container.grid_columnconfigure(0, weight = 1)
      
         self.title("mediaPutter v2.4.4")
-        self.geometry("425x687+120+120")
+        if(platform.system() == 'Windows'):
+            self.geometry("425x687+120+120")
+        else:
+            self.geometry("500x687+120+120")
         self.frames = {}
         for F in (MainPage,TransferPage):
             frame = F(container,self)
