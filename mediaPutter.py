@@ -21,8 +21,8 @@ class MainView(tk.Tk):
         container.grid_rowconfigure(0, weight = 1)
         container.grid_columnconfigure(0, weight = 1)
      
-        self.title("mediaPutter v2.4.3")
-        self.geometry("400x600+120+120")
+        self.title("mediaPutter v2.4.4")
+        self.geometry("425x687+120+120")
         self.frames = {}
         for F in (MainPage,TransferPage):
             frame = F(container,self)

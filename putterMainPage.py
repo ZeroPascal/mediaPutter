@@ -23,14 +23,14 @@ class MainPage(Frame):
         self.config = putterConfig.ReadConfig()
         
         #self.config['sourceFolder']= self.initalConfig['sourceFolder']
-        mediaList = Listbox(self, width=55, selectmode=EXTENDED, name='mediaList')
+        mediaList = Listbox(self, width=65, selectmode=EXTENDED, name='mediaList')
         filterString =StringVar()
         filterString.set(self.config.get('filter'))
         idSizeString = StringVar()
         idSizeString.set(putterConfig.getConfig('idSize'))
         idMod =StringVar()
         idMod.set(self.config.get('idMod'))
-        fileDirectory = Listbox(self,width=55,selectmode=EXTENDED,name='fileDirectory')
+        fileDirectory = Listbox(self,width=65,selectmode=EXTENDED,name='fileDirectory')
         overwriteFiles = IntVar()
         overwriteFiles.set(self.config.get('overwriteFiles'))
         configError=Label(self,text="")
@@ -186,15 +186,15 @@ class MainPage(Frame):
         filterEntry = Entry(self, textvariable=filterString,width=15)
         filterEntry.place(x=45,y=row3)
 
-        Label(self,text='ID Size:').place(x=125,y=row3)
+        Label(self,text='ID Size:').place(x=130,y=row3)
         idSizeString.trace("w", lambda name, index, mode, idSizeString=idSizeString: updateIDSize(idSizeString.get()))
-        idSizeEntry = Entry(self, textvariable=idSizeString, width=15)
-        idSizeEntry.place(x=175,y=row3)
+        idSizeEntry = Entry(self, textvariable=idSizeString, width=3)
+        idSizeEntry.place(x=180,y=row3)
         
-        Label(self,text='ID Mod:').place(x=200,y=row3)
+        Label(self,text='ID Mod:').place(x=210,y=row3)
         idMod.trace("w", lambda name, index, mode,  idMod=idMod: updateIDMod(idMod.get()))
-        idModEntry = Entry(self, textvariable=idMod, width=15)
-        idModEntry.place(x=250,y=row3)
+        idModEntry = Entry(self, textvariable=idMod, width=5)
+        idModEntry.place(x=260,y=row3)
         row4= row3+25
         Label(self, text='Media Per Filtered Server:').place(x=10,y=row4)
         fileDirectory.place(x=10, y= row4+25)
