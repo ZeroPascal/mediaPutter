@@ -22,7 +22,7 @@ class MainView(tk.Tk):
         container.grid_rowconfigure(0, weight = 1)
         container.grid_columnconfigure(0, weight = 1)
      
-        self.title("mediaPutter v2.4.4")
+        self.title("mediaPutter v2.4.5")
         if(platform.system() == 'Windows'):
             self.geometry("425x687+120+120")
         else:

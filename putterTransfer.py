@@ -51,15 +51,22 @@ class Putt():
     def cleanPath(self,path:str):
         # 
         return '"\''+path+'\'"'
+    
+    def escapeSpaces(self, string: str):
+        return string.replace(' ','\ ')
 
-    def getDest(self,includeDestinationFolder= True):
+    def getDest(self, escapeSpaces:bool, includeDestinationFolder= True):
         dest = self.config['destinationPath'] 
         if(includeDestinationFolder):
-            dest+= self.config['destinationFolder']
-        
+            dest+= self.config['destinationFolder']+"/"
+        if escapeSpaces:
+            dest = self.escapeSpaces(dest)
         if(self.config['ipSchema']):
-            dest = self.config['ipSchema']+":"+'"\''+dest+'\'"'
-        
+            if not escapeSpaces:
+                dest = self.config['ipSchema']+":"+'"\''+dest+'\'"'
+            else:
+                dest = self.config['ipSchema']+":"+dest
+            
         return dest
 
     def start(self):
@@ -163,7 +170,7 @@ class Putt():
        # print('Temp Path: ',tempPath)
         try:
             
-            cmd:str = "scp -rv "+tempPath+" "+self.getDest(False)
+            cmd:str = "scp -rv "+tempPath+" "+self.getDest(False,False)
             cmd = self.replaceIDWildCard(cmd,serverID)
             results = self.run(cmd)
             if 'Exit status 0' in results:
@@ -184,7 +191,7 @@ class Putt():
 
 
     def deleteFile(self, serverID, fileName):
-        cmd:str = "echo 'rm "+fileName+"' | sftp "+self.getDest()
+        cmd:str = "echo 'rm "+self.escapeSpaces(fileName)+"' | sftp "+self.getDest(True)
         cmd = self.replaceIDWildCard(cmd,serverID)
         self.run(cmd)
 
@@ -197,14 +204,14 @@ class Putt():
         file = "'"+file+"'" #self.cleanPath(file)
         try:
             if(self.config['overwriteFiles'] == 0):
-                cmd:str = "echo 'ls' | sftp "+self.getDest()
+                cmd:str = "echo 'ls' | sftp "+self.getDest(True)
                 cmd = self.replaceIDWildCard(cmd,serverID)
                 remoteFiles = self.run(cmd)
                 hasFile = remoteFiles.find(fileName)>-1
                 if hasFile:
                      return 'File Already Exist'
             
-            cmd = "scp -v "+file+" "+self.getDest()       
+            cmd = "scp -v "+file+" "+self.getDest(False)       
     
         except Exception as e:
             raise Exception('Malformed Config',e)
