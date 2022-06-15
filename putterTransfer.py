@@ -224,6 +224,9 @@ class Putt():
         try:
             if(self.config['overwriteFiles'] == 0):
                 cmd:str = "echo 'ls' | sftp "+self.getDest(True)
+                if(self.config['useNAS'] == 1):
+                    cmd = "echo '"+cmd+"' | ssh "+self.config['nasUser']
+                  
                 cmd = self.replaceIDWildCard(cmd,serverID)
                 remoteFiles = self.run(cmd)
                 hasFile = remoteFiles.find(fileName)>-1
