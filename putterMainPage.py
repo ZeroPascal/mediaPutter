@@ -6,6 +6,7 @@ from tkinter import filedialog
 from os import listdir
 from os.path import isfile, join
 from tkinter.ttk import Treeview
+from nasScanner import nasScanner
 from putterConfigPage import update
 import putterConfig
 import re
@@ -38,6 +39,8 @@ class MainPage(Frame):
         fileDirectory = Listbox(self,width=listWidth,selectmode=EXTENDED,name='fileDirectory')
         overwriteFiles = IntVar()
         overwriteFiles.set(self.config.get('overwriteFiles'))
+        useNAS = IntVar()
+        useNAS.set(self.config.get('useNAS'))
         configError=Label(self,text="")
         destinationFolder =StringVar()
         destinationFolder.set(self.config.get('destinationFolder'))
@@ -47,17 +50,22 @@ class MainPage(Frame):
         ipSchema.set(self.config.get('ipSchema'))
 
 
-
         def updateMediaFolder():
-           # print(self.config.get('sourceFolder'))
-            if not self.config.get('sourceFolder'):
+            
+            if self.config.get('useNAS'):
+                self.mediaFiles = nasScanner(self.config.get('nasUser'),self.config.get('nasPath'),self.config.get('nasFolder'))
+
+            elif not self.config.get('sourceFolder'):
                 return 
+            
+            else:
+                self.mediaFiles =  [f for f in listdir(self.config.get('sourceFolder')) if isfile(join(self.config.get('sourceFolder'), f))]
+                
         
             mediaList.delete(0,mediaList.size())
             try:
-                self.mediaFiles = [f for f in listdir(self.config.get('sourceFolder')) if isfile(join(self.config.get('sourceFolder'), f))]
+                
                 i=0
-                    
                 for file in self.mediaFiles:
                     i+=1
                     mediaList.insert(i,file)
@@ -75,7 +83,8 @@ class MainPage(Frame):
                 
             if self.config.get('sourceFolder'):
                 updateMediaFolder()
-
+        def selectNASLocation():
+            self.controller.nasSelection()
                
         def updateSelectedMedia(evt):
             
@@ -118,6 +127,10 @@ class MainPage(Frame):
                         configError.config(text='')
    
             self.controller.startTransfer(self.serverList,self.config)
+        
+        def setUseNAS():
+            self.config = putterConfig.UpdateConfig('useNAS',useNAS.get())
+            updateMediaFolder()
         def setOverWrite():
 
             self.config = putterConfig.UpdateConfig('overwriteFiles',overwriteFiles.get())
@@ -176,9 +189,12 @@ class MainPage(Frame):
         updateMediaFolder()
         row1= 10
         Button(self, text="Select Media Folder",command=selectMediaFolder).place(x=10,y=10)
-
+        Button(self, text="NAS Location",command=selectNASLocation).place(x=130,y=10)
+        Checkbutton(self,text='use NAS',variable=useNAS,onvalue=1,offvalue=0,command=setUseNAS).place(x=250,y=row1)
         row2= row1+25
         Label(self,text='Media Files (Select to ignore):').place(x=10,y=row2)
+
+
        
         mediaList.bind('<<ListboxSelect>>', updateSelectedMedia)
         mediaList.place(x=10,y=row2+25)

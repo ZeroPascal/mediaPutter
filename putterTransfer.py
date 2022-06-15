@@ -167,10 +167,10 @@ class Putt():
         #print(self.config)
         tempPath = tempFolder.as_posix()
         tempPath = "'"+tempPath+"'" #self.cleanPath(tempPath)
-       # print('Temp Path: ',tempPath)
+        print('Temp Path: ',tempPath)
         try:
             
-            cmd:str = "scp -rv "+tempPath+" "+self.getDest(False,False)
+            cmd:str = "scp -rv "+tempPath+" "+self.getDest(True,False)
             cmd = self.replaceIDWildCard(cmd,serverID)
             results = self.run(cmd)
             if 'Exit status 0' in results:
@@ -197,11 +197,13 @@ class Putt():
 
     def sendFile(self,fileName, serverID):
        # print('Sending File!',fileName, 'to',serverID)
-        
-        file = Path(self.config['sourceFolder'])
-        file = file / fileName
-        file = file.as_posix()
-        file = "'"+file+"'" #self.cleanPath(file)
+        if(self.config['useNAS'] == 1):
+            file = self.config['nasUser']+':'+'"\''+self.config['nasFolder']+'/'+fileName+'\'"'
+        else:
+            file = Path(self.config['sourceFolder'])
+            file = file / fileName
+            file = file.as_posix()
+            file = "'"+file+"'" #self.cleanPath(file)
         try:
             if(self.config['overwriteFiles'] == 0):
                 cmd:str = "echo 'ls' | sftp "+self.getDest(True)
@@ -211,7 +213,7 @@ class Putt():
                 if hasFile:
                      return 'File Already Exist'
             
-            cmd = "scp -v "+file+" "+self.getDest(False)       
+            cmd = "scp -v "+file+" "+self.getDest(True)       
     
         except Exception as e:
             raise Exception('Malformed Config',e)

@@ -1,6 +1,6 @@
 from pathlib import Path
 import json
-defaultConfig = '{"sourceFolder": "", "filter": "", "destinationFolder": "", "destinationPath" : "/Applications/Mbox/Media/", "ipSchema" : "192.168.11.", "idSize": 3, "idMod": 0, "overwriteFiles":0}'
+defaultConfig = '{"sourceFolder": "", "filter": "", "destinationFolder": "", "destinationPath" : "/Applications/Mbox/Media/", "ipSchema" : "192.168.11.", "idSize": 3, "idMod": 0, "overwriteFiles":0, "nasPath":"", "nasUser":"", "nasFolder": "", "useNAS": 0}'
 defaults = json.loads(defaultConfig)
 
 currentConfig = defaults
