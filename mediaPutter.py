@@ -1,5 +1,6 @@
 import platform
 import tkinter as tk
+from nasPopup import NASPopup
 #from tkinter import tix
 from putterMainPage import MainPage
 from putterTransferPage import TransferPage
@@ -22,13 +23,13 @@ class MainView(tk.Tk):
         container.grid_rowconfigure(0, weight = 1)
         container.grid_columnconfigure(0, weight = 1)
      
-        self.title("mediaPutter v2.4.5")
+        self.title("mediaPutter v2.5.0")
         if(platform.system() == 'Windows'):
             self.geometry("425x687+120+120")
         else:
             self.geometry("500x687+120+120")
         self.frames = {}
-        for F in (MainPage,TransferPage):
+        for F in (MainPage,TransferPage, NASPopup):
             frame = F(container,self)
             self.frames[frame.name]=frame
             frame.grid(row = 0, column = 0, sticky ="nsew")
@@ -46,6 +47,16 @@ class MainView(tk.Tk):
         transfer = self.frames['TransferPage']
         transfer.start(serverList,config)
         transfer.tkraise()
+    
+    def nasSelection(self):
+        self.frames['NASPopup'].tkraise()
+    
+    def quitNAS(self):
+        self.frames['MainPage'].tkraise()
+
+        
+
+    
   
 
       

@@ -3,7 +3,7 @@
 from setuptools import setup
 
 setup(name='mediaPutter',
-      version='2.4',
+      version='2.5.0',
       description='Secure Copy Protocol GUI Wrapper',
       author='Logic.Lighting',
       author_email='putter@logic.lighting',
