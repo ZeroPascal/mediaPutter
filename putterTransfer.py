@@ -1,4 +1,5 @@
 
+from datetime import datetime
 import subprocess
 import platform
 from pathlib import Path
@@ -70,6 +71,7 @@ class Putt():
         return dest
 
     def start(self):
+        startTime = datetime.now()
         self.stopPoll =threading.Thread(target=checkStop,args=(self.stopThread,self.getProcesses,self.stop,))
         self.stopPoll.start()
         
@@ -108,6 +110,9 @@ class Putt():
            # print('Transfer Thread Alive?',self.stopPoll.is_alive())
         if not self.processes:
             time.sleep(1)
+            totalTime =  datetime.now() -startTime
+            
+            self.feedback(None,None,str(totalTime))
             self.feedback(None,None,'Done!')
             self.stopThread(True)
 
