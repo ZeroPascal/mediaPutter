@@ -80,7 +80,8 @@ class Putt():
                     if(self.stopThread()):
                         print('Got Stop in Server Loop',serverID)
                         break
-                    tempFolder = self.makeDestinationFolder(serverID)
+                   # tempFolder = self.makeDestinationFolder(serverID)
+                    tempFolder = self.replaceIDWildCard(self.config.get('destinationFolder'),serverID)
                     self.feedback(serverID, None, 'Starting')
                     try:
                         self.feedback(serverID, None, self.sendDestinationFolders(serverID, tempFolder))
@@ -99,10 +100,10 @@ class Putt():
                             if(e!='File Already Exist'):
                                 self.feedback(serverID,None,  e)
                     
-                    try:
-                        self.removeDestinationFolder(tempFolder)
-                    except:
-                        print('Can Not Remove Temp Folder')
+                   # try:
+                   #     self.removeDestinationFolder(tempFolder)
+                   # except:
+                    #    print('Can Not Remove Temp Folder')
             
 
         if (self.stopFlag):
@@ -167,8 +168,17 @@ class Putt():
 
         tempFolder.mkdir(parents=True, exist_ok=True)
         return tempFolder
+    def sendDestinationFolders(self,serverID,tempFolder:str):
+        print(serverID,tempFolder)
+        try:
+            cmd:str = "echo 'mkdir "+tempFolder+"' | sftp "+self.getDest(True,False)
+            cmd = self.replaceIDWildCard(cmd,serverID)
+            results = self.run(cmd)
+            print(results)
+        except Exception as e:
+            print('sendDest Error',e)
 
-    def sendDestinationFolders(self,serverID, tempFolder: Path):
+    def _sendDestinationFolders(self,serverID, tempFolder: Path):
         #print(self.config)
         tempPath = tempFolder.as_posix()
         tempPath = "'"+tempPath+"'" #self.cleanPath(tempPath)
