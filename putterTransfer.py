@@ -209,6 +209,8 @@ class Putt():
 
     def deleteFile(self, serverID, fileName):
         cmd:str = "echo 'rm "+self.escapeSpaces(fileName)+"' | sftp "+self.getDest(True)
+        if(self.config['useNAS'] == 1):
+                    cmd = "echo '"+cmd+"' | ssh "+self.config['nasUser']
         cmd = self.replaceIDWildCard(cmd,serverID)
         self.run(cmd)
 
