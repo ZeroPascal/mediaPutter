@@ -8,7 +8,7 @@ def nasScanner(user:str,path:str,folder:str):
     #cmd = "echo 'ls "+path+"' | sftp "+user
     cmd = "echo 'ls "+'"'+path+folder+'"'+"' | sftp "+user
     fileList = []
-    print(cmd)
+
     try:
         
         if(platform.system()=='Windows'):
@@ -20,7 +20,6 @@ def nasScanner(user:str,path:str,folder:str):
         if not p.poll() or out[1]:
             results = out[0]+out[1]
             results = results.splitlines()
-        print(results)
         for r in results:
             if path in r and not 'sftp' in r:
                 s = r.replace(path+folder+"/",'')

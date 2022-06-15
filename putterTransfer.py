@@ -172,6 +172,8 @@ class Putt():
         print(serverID,tempFolder)
         try:
             cmd:str = "echo 'mkdir "+tempFolder+"' | sftp "+self.getDest(True,False)
+            if(self.config['useNAS'] == 1):
+                cmd = "echo '"+cmd+"' | ssh "+self.config['nasUser']
             cmd = self.replaceIDWildCard(cmd,serverID)
             results = self.run(cmd)
             print(results)
