@@ -1,6 +1,6 @@
 from pathlib import Path
 import json
-defaultConfig = '{"sourceFolder": "", "filter": "", "destinationFolder": "", "destinationPath" : "/Applications/Mbox/Media/", "ipSchema" : "192.168.11.", "idSize": 3, "idMod": 0, "overwriteFiles":0, "nasPath":"", "nasUser":"", "nasFolder": "", "useNAS": 0}'
+defaultConfig = '{"sourceFolder": "", "filter": "", "destinationFolder": "", "destinationPath" : "/Applications/Mbox/Media/", "ipSchema" : "prg@192.168.11.$ID", "idSize": 3, "idMod": 0, "overwriteFiles":0, "nasPath":"", "nasUser":"", "nasFolder": "", "useNAS": 0, "concurrency": 1}'
 defaults = json.loads(defaultConfig)
 
 currentConfig = defaults
@@ -47,7 +47,7 @@ def UpdateConfig(lineItem, value):
     current = ReadConfig()
     #print(lineItem, value, type(value))
 
-    if((lineItem == 'idSize' or lineItem =='idMod' or lineItem =='overwriteFiles') and type(value) is not int):
+    if((lineItem == 'idSize' or lineItem =='idMod' or lineItem =='overwriteFiles' or lineItem=='concurrency') and type(value) is not int):
         if '-' in value:
             try:
                 value = int(value)
