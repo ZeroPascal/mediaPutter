@@ -49,9 +49,12 @@ class MainView(tk.Tk):
         transfer.tkraise()
     
     def nasSelection(self):
+        
         self.frames['NASPopup'].tkraise()
     
     def quitNAS(self):
+        self.destroy()
+        self.__init__()
         self.frames['MainPage'].tkraise()
 
         

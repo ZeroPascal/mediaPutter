@@ -1,5 +1,6 @@
 import platform
 from tkinter import *
+from turtle import pu
 from nasScanner import nasScanner
 import putterConfig
 
@@ -45,10 +46,11 @@ class NASPopup(Frame):
             print()
         
         def acceptFiles():
-            
+            putterConfig.UpdateConfig('useNAS',1)
             self.controller.quitNAS()
         
         def cancelNAS():
+            putterConfig.UpdateConfig('useNAS',0)
             self.controller.quitNAS()
 
         row1= 10

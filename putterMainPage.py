@@ -29,7 +29,8 @@ class MainPage(Frame):
         if(platform.system() == 'Windows'):
              listWidth = 65
         else:
-            listWidth = 50    
+            listWidth = 50
+        sourceFolder =StringVar()    
         mediaList = Listbox(self, width=listWidth, selectmode=EXTENDED, name='mediaList')
         filterString =StringVar()
         filterString.set(self.config.get('filter'))
@@ -57,12 +58,13 @@ class MainPage(Frame):
             
             if self.config.get('useNAS'):
                 self.mediaFiles = nasScanner(self.config.get('nasUser'),self.config.get('nasPath'),self.config.get('nasFolder'))
-
+                sourceFolder = self.config.get('nasPath')
             elif not self.config.get('sourceFolder'):
                 return 
             
             else:
                 self.mediaFiles =  [f for f in listdir(self.config.get('sourceFolder')) if isfile(join(self.config.get('sourceFolder'), f))]
+                sourceFolder = self.config.get('sourceFolder')
                 
         
             mediaList.delete(0,mediaList.size())
@@ -81,11 +83,16 @@ class MainPage(Frame):
         def selectMediaFolder():
             try:
                 self.config = putterConfig.UpdateConfig('sourceFolder',filedialog.askdirectory())
+                self.config = putterConfig.UpdateConfig('useNAS',0)
+  
             except:
                 self.config = putterConfig.UpdateConfig('sourceFolder','')
                 
             if self.config.get('sourceFolder'):
+                useNAS.set(0)
+         
                 updateMediaFolder()
+                
         def selectNASLocation():
             self.controller.nasSelection()
             updateMediaFolder()
@@ -196,6 +203,7 @@ class MainPage(Frame):
         Button(self, text="NAS Location",command=selectNASLocation).place(x=170,y=10)
         Checkbutton(self,text='use NAS',variable=useNAS,onvalue=1,offvalue=0,command=setUseNAS).place(x=300,y=(row1+5))
         row2= row1+27
+        Label(self,textvariable=sourceFolder).place(x=200,y=row1+27)
         Label(self,text='Media Files (Select to ignore):').place(x=10,y=row2)
 
 
