@@ -54,7 +54,9 @@ class Putt():
         return '"\''+path+'\'"'
     
     def escapeSpaces(self, string: str):
-        return string.replace(' ','\ ')
+        if(platform.system() != 'Windows'):
+            return string.replace(' ','\ ')
+        return string
 
     def getDest(self, escapeSpaces:bool, includeDestinationFolder= True):
         dest = self.config['destinationPath'] 
@@ -63,7 +65,7 @@ class Putt():
         if escapeSpaces:
             dest = self.escapeSpaces(dest)
         if(self.config['ipSchema']):
-            if not escapeSpaces:
+            if escapeSpaces:
                 dest = self.config['ipSchema']+":"+'"\''+dest+'\'"'
             else:
                 dest = self.config['ipSchema']+":"+dest
@@ -171,12 +173,17 @@ class Putt():
     def sendDestinationFolders(self,serverID,tempFolder:str):
         print(serverID,tempFolder)
         try:
-            cmd:str = "echo 'mkdir "+tempFolder+"' | sftp "+self.getDest(True,False)
+            if(platform.system() == 'Windows'):
+                cmd:str = "echo 'mkdir "+'"'+tempFolder+'"'+"' | sftp "+self.getDest(True,False)
+            else:
+                cmd:str = "echo 'mkdir "+tempFolder+"' | sftp "+self.getDest(True,False)
             if(self.config['useNAS'] == 1):
                 cmd = "echo '"+cmd+"' | ssh "+self.config['nasUser']
             cmd = self.replaceIDWildCard(cmd,serverID)
             results = self.run(cmd)
             print(results)
+            if 'not found.' in results:
+                return 'Destination Folder Not Made'
         except Exception as e:
             print('sendDest Error',e)
 
@@ -198,6 +205,8 @@ class Putt():
                 raise Exception('Could Not Connect To Client')
             elif 'ambiguous target' in results:
                 raise Exception('Malformed Target')
+            elif 'No such file or directory' in results:
+                raise Exception('Bad Destination')
                 
         except Exception as e:
             print('sendDest Error',e)
