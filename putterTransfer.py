@@ -66,7 +66,7 @@ class Putt():
             dest = self.escapeSpaces(dest)
         if(self.config['ipSchema']):
             if escapeSpaces:
-                dest = self.config['ipSchema']+":"+'"\''+dest+'\'"'
+                dest = '"'+self.config['ipSchema']+":"+'\''+dest+'\'"'
             else:
                 dest = self.config['ipSchema']+":"+dest
             
@@ -174,7 +174,7 @@ class Putt():
         print(serverID,tempFolder)
         try:
             if(platform.system() == 'Windows'):
-                cmd:str = "echo 'mkdir "+'"'+tempFolder+'"'+"' | sftp "+self.getDest(True,False)
+                cmd:str = "echo 'mkdir "+'"'+tempFolder+'"'+"' | sftp "+self.getDest(False,False)
             else:
                 cmd:str = "echo 'mkdir "+tempFolder+"' | sftp "+self.getDest(True,False)
             if(self.config['useNAS'] == 1):
