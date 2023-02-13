@@ -20,6 +20,15 @@ def nasScanner(user:str,path:str,folder:str):
         if not p.poll() or out[1]:
             results = out[0]+out[1]
             print(repr(results))
+            if(not results or results.find('sftp [-46AaCfNpqrv]')>-1):
+                results = 'Command Error' 
+            if(results.find('debug1: Exit status 0')>-1 or results.find('Executing: cp --')>-1):
+                results = 'Failed Transfer'
+            if(results.find('scp: ambiguous target')>-1):
+                results = 'SCP Ambiguous Target'
+            if(results.find('No space left on device')>-1):
+                results = 'Target Disk Full'
+    
             results = results.splitlines()
             
         for r in results:

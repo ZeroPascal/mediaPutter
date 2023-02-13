@@ -1,3 +1,4 @@
+from copyreg import constructor
 import platform
 from sre_compile import isstring
 from tkinter import *
@@ -28,7 +29,8 @@ class MainPage(Frame):
         if(platform.system() == 'Windows'):
              listWidth = 65
         else:
-            listWidth = 50    
+            listWidth = 50
+        sourceFolder =StringVar()    
         mediaList = Listbox(self, width=listWidth, selectmode=EXTENDED, name='mediaList')
         filterString =StringVar()
         filterString.set(self.config.get('filter'))
@@ -48,18 +50,21 @@ class MainPage(Frame):
         destinationPath.set(self.config.get('destinationPath'))
         ipSchema =StringVar()
         ipSchema.set(self.config.get('ipSchema'))
+        #concurrency=StringVar()
+        #concurrency.set(self.config.get('concurrency'))
 
 
         def updateMediaFolder():
             
             if self.config.get('useNAS'):
                 self.mediaFiles = nasScanner(self.config.get('nasUser'),self.config.get('nasPath'),self.config.get('nasFolder'))
-
+                sourceFolder = self.config.get('nasPath')
             elif not self.config.get('sourceFolder'):
                 return 
             
             else:
                 self.mediaFiles =  [f for f in listdir(self.config.get('sourceFolder')) if isfile(join(self.config.get('sourceFolder'), f))]
+                sourceFolder = self.config.get('sourceFolder')
                 
         
             mediaList.delete(0,mediaList.size())
@@ -78,13 +83,19 @@ class MainPage(Frame):
         def selectMediaFolder():
             try:
                 self.config = putterConfig.UpdateConfig('sourceFolder',filedialog.askdirectory())
+                self.config = putterConfig.UpdateConfig('useNAS',0)
+  
             except:
                 self.config = putterConfig.UpdateConfig('sourceFolder','')
                 
             if self.config.get('sourceFolder'):
+                useNAS.set(0)
+         
                 updateMediaFolder()
+                
         def selectNASLocation():
             self.controller.nasSelection()
+            updateMediaFolder()
                
         def updateSelectedMedia(evt):
             
@@ -131,8 +142,8 @@ class MainPage(Frame):
         def setUseNAS():
             self.config = putterConfig.UpdateConfig('useNAS',useNAS.get())
             updateMediaFolder()
-        def setOverWrite():
 
+        def setOverWrite():
             self.config = putterConfig.UpdateConfig('overwriteFiles',overwriteFiles.get())
 
         def updateIDSize(idSizeString:str):
@@ -189,9 +200,10 @@ class MainPage(Frame):
         updateMediaFolder()
         row1= 10
         Button(self, text="Select Media Folder",command=selectMediaFolder).place(x=10,y=10)
-        Button(self, text="NAS Location",command=selectNASLocation).place(x=130,y=10)
-        Checkbutton(self,text='use NAS',variable=useNAS,onvalue=1,offvalue=0,command=setUseNAS).place(x=250,y=row1)
-        row2= row1+25
+        Button(self, text="NAS Location",command=selectNASLocation).place(x=170,y=10)
+        Checkbutton(self,text='use NAS',variable=useNAS,onvalue=1,offvalue=0,command=setUseNAS).place(x=300,y=(row1+5))
+        row2= row1+27
+        Label(self,textvariable=sourceFolder).place(x=200,y=row1+27)
         Label(self,text='Media Files (Select to ignore):').place(x=10,y=row2)
 
 
@@ -215,7 +227,7 @@ class MainPage(Frame):
         idSizeEntry = Entry(self, textvariable=idSizeString, width=3)
         idSizeEntry.place(x=180,y=row3)
         
-        Label(self,text='ID Mod:').place(x=220,y=row3)
+        Label(self,text='ID Mod:').place(x=225,y=row3)
         idMod.trace("w", lambda name, index, mode,  idMod=idMod: updateIDMod(idMod.get()))
         idModEntry = Entry(self, textvariable=idMod, width=5)
         idModEntry.place(x=280,y=row3)
@@ -255,9 +267,15 @@ class MainPage(Frame):
         ipSchemaEntry.place(x=128,y=row7)
         
         Checkbutton(self,text='Overwrite Files',variable=overwriteFiles,onvalue=1,offvalue=0,command=setOverWrite).place(x=10,y=row7+25)
+        
+        #Label(self,text='Concurrency:').place(x=200,y=row7+25)
+        #concurrency.trace("w", lambda name, index, mode,  concurrency=concurrency: updateConfig('concurrency',concurrency.get()))
+        #concurrencyEntry = Entry(self, textvariable=concurrency, width=5)
+        #concurrencyEntry.place(x=285,y=row7+25)
         row8 = row7+50
         
         configError.place(x=15,y=row8-20)
         Button(self, text="Start Transfer",command=startPutter).place(x=150,y=row8)
+        Label(self,text='Use "$ID" as Server ID var in Folder, Path or IP Schema').place(x=50,y=row8+25)
 
 

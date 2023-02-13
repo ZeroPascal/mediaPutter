@@ -23,7 +23,7 @@ class MainView(tk.Tk):
         container.grid_rowconfigure(0, weight = 1)
         container.grid_columnconfigure(0, weight = 1)
      
-        self.title("mediaPutter v2.5.03")
+        self.title("mediaPutter v2.6.0")
         if(platform.system() == 'Windows'):
             self.geometry("425x687+120+120")
         else:
@@ -49,9 +49,12 @@ class MainView(tk.Tk):
         transfer.tkraise()
     
     def nasSelection(self):
+        
         self.frames['NASPopup'].tkraise()
     
     def quitNAS(self):
+        self.destroy()
+        self.__init__()
         self.frames['MainPage'].tkraise()
 
         
