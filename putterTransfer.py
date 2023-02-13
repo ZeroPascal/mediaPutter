@@ -65,7 +65,7 @@ class Putt():
         if escapeSpaces:
             dest = self.escapeSpaces(dest)
         if(self.config['ipSchema']):
-            if escapeSpaces:
+            if escapeSpaces and dest.count(' ') >0:
                 dest = '"'+self.config['ipSchema']+":"+'\''+dest+'\'"'
             else:
                 dest = self.config['ipSchema']+":"+dest
@@ -173,10 +173,8 @@ class Putt():
     def sendDestinationFolders(self,serverID,tempFolder:str):
         print(serverID,tempFolder)
         try:
-            if(platform.system() == 'Windows'):
-                cmd:str = "echo 'mkdir "+'"'+tempFolder+'"'+"' | sftp "+self.getDest(False,False)
-            else:
-                cmd:str = "echo 'mkdir "+tempFolder+"' | sftp "+self.getDest(True,False)
+
+            cmd:str = "echo 'mkdir "+'"'+tempFolder+'"'+"' | sftp "+self.getDest(platform.system() != 'Windows',False)
             if(self.config['useNAS'] == 1):
                 cmd = "echo '"+cmd+"' | ssh "+self.config['nasUser']
             cmd = self.replaceIDWildCard(cmd,serverID)
