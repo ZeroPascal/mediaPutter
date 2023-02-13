@@ -3,7 +3,8 @@ A simple vanilla python3 app to move files from one place to another. Really jus
 
 Requires all machines to have SSH Key Authorization completed and be accepting SFTP connections. 
 
-To Use. Run from CLI python3 mediaPutter.py
+To Use. Run from CLI in repository folder
+> python3 mediaPutter.py
 
 Selecting Media:
 Either select a local folder with "Select Media Folder" or use the "NAS Location" button to configure a remote file share source.
@@ -25,43 +26,46 @@ Any of the above can use the keyword $ID. This will insert the given server ID i
 
 Overwrite Files will transfer files regardless of if they exist or not.
 
-Example!
+## ----Example-----
+
 My Servers are 
-1 = 192.168.1.101
-2 = 192.168.1.102
-4 = 192.168.1.104
+- 1 = 192.168.1.101 
+- 2 = 192.168.1.102
+- 4 = 192.168.1.104
 
 Select Media Folder containing:
-001.File 1-Server 1.mov
-002.File 2-Server-1.mov
-003.File3-Server2.mov
-004.File 4-Server 4.mov
-100.Song.aac
+- 001.File 1-Server 1.mov
+- 002.File 2-Server-1.mov
+- 003.File3-Server2.mov
+- 004.File 4-Server 4.mov
+- 100.Song.aac
 
 I only want to move .mov files so I select the .aac file from the list. It will disappear from the 'Media Per Filtered Server' list.
 
 I want each .mov file to go to the respective Server. [1, 2, 4]
 My filter would look like \d.txt, ID Size: 1, ID Mod: 0.
 
-1. <---SERVER ID
-    001.File 1-Server 1.txt 
-    002.File 2-Server-1.txt
-2
-    003.File3-Server2.txt
-4
-    004.File 4-Server 4.txt
+* 1 <---SERVER ID
+    - 001.File 1-Server 1.txt 
+    - 002.File 2-Server-1.txt
+* 2
+    - 003.File3-Server2.txt
+* 4
+    - 004.File 4-Server 4.txt
 
 But this sets the ID as a single digit and my server ID in the schema is 3 digits. So ID Mod wants to be 100.
-101
-    001.File 1-Server 1.txt
-    002.File 2-Server-1.txt
-102
-    003.File3-Server2.txt
-104
-    004.File 4-Server 4.txt
+* 101
+    - 001.File 1-Server 1.txt
+    - 002.File 2-Server-1.txt
+* 102
+   - 003.File3-Server2.txt
+* 104
+    - 004.File 4-Server 4.txt
 
 Destination Folder: 001.AwesomeExample
+
 Destination Path: /Applications/Mbox/Media/ (Note the / at the end!)
+
 IP Schema prg@192.168.1.$ID
 
 ^^Note the $ID. This sets files in your server 1 to go to prg@192.168.1.101, which is how they are addressed.
