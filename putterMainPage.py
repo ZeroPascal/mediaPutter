@@ -50,8 +50,8 @@ class MainPage(Frame):
         destinationPath.set(self.config.get('destinationPath'))
         ipSchema =StringVar()
         ipSchema.set(self.config.get('ipSchema'))
-        concurrency=StringVar()
-        concurrency.set(self.config.get('concurrency'))
+        #concurrency=StringVar()
+        #concurrency.set(self.config.get('concurrency'))
 
 
         def updateMediaFolder():
@@ -267,14 +267,15 @@ class MainPage(Frame):
         ipSchemaEntry.place(x=128,y=row7)
         
         Checkbutton(self,text='Overwrite Files',variable=overwriteFiles,onvalue=1,offvalue=0,command=setOverWrite).place(x=10,y=row7+25)
-
-        Label(self,text='Concurrency:').place(x=200,y=row7+25)
-        concurrency.trace("w", lambda name, index, mode,  concurrency=concurrency: updateConfig('concurrency',concurrency.get()))
-        concurrencyEntry = Entry(self, textvariable=concurrency, width=5)
-        concurrencyEntry.place(x=285,y=row7+25)
+        
+        #Label(self,text='Concurrency:').place(x=200,y=row7+25)
+        #concurrency.trace("w", lambda name, index, mode,  concurrency=concurrency: updateConfig('concurrency',concurrency.get()))
+        #concurrencyEntry = Entry(self, textvariable=concurrency, width=5)
+        #concurrencyEntry.place(x=285,y=row7+25)
         row8 = row7+50
         
         configError.place(x=15,y=row8-20)
         Button(self, text="Start Transfer",command=startPutter).place(x=150,y=row8)
+        Label(self,text='Use "$ID" as Server ID var in Folder, Path or IP Schema').place(x=50,y=row8+25)
 
 
